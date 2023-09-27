@@ -14,7 +14,7 @@ export interface Query {
 const baseQuery: Query = {
   name: "",
   age: "",
-  limit: 5,
+  limit: 11,
   offset: 0
 };
 
