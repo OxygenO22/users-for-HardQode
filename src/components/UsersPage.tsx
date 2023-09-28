@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { requestUsers } from '../api';
+import { requestUsers, requestUsersWithError } from "../api";
 import './UsersPage.scss';
 
 interface IUsers {
@@ -10,14 +10,12 @@ interface IUsers {
 
 export const UsersPage = () => {
   const [page, setPage] = useState(1);
+  const [usersError, setUsersError] = useState('');
+  const [isUsers, setIsUsers] = useState(false);
   const [users, setUsers] = useState<IUsers[]>([]);
   const [searchName, setSearchName] = useState("");
   const [searchAge, setSearchAge] = useState("");
   const [limit, setLimit] = useState(4);
-
-  console.log('limit: ', limit)
-  console.log("users: ", users);
-  console.log("page: ", page);
 
   requestUsers({
     name: `${searchName}`,
@@ -25,6 +23,14 @@ export const UsersPage = () => {
     limit: limit,
     offset: (page - 1) * limit,
   }).then((data) => setUsers(data));
+
+  setTimeout(() => setIsUsers(true), 4000);
+
+  if (users.length === 0) {
+    requestUsersWithError({ name: "", age: "", limit: 4, offset: 0 }).catch(
+      () => setUsersError("Данные не получены или необходимо дождаться ответа от сервера :(")
+    );
+  }
 
   const selectOptions = [
     {id: 1, value: 1},
@@ -64,6 +70,8 @@ export const UsersPage = () => {
           ))
         ) : page > 1 ? (
           <h2>Users not found</h2>
+        ) : (isUsers === true && page === 1 && users.length === 0)  ? (
+          <h2>{usersError}</h2>
         ) : (
           <h2>Loading...</h2>
         )}
